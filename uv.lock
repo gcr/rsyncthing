@@ -292,6 +292,7 @@ name = "rsyncthing"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "anyio" },
     { name = "asyncssh" },
     { name = "cyclopts" },
     { name = "httpx" },
@@ -300,6 +301,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", specifier = ">=4.12.1" },
     { name = "asyncssh", specifier = ">=2.22.0" },
     { name = "cyclopts", specifier = ">=4.5.3" },
     { name = "httpx", specifier = ">=0.28.1" },
