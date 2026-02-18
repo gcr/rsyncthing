@@ -1,0 +1,1 @@
+# rsyncthing: A CLI for syncthing that's as easy to use as rsync.
