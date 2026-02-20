@@ -13,32 +13,32 @@ import anyio
 class Device(BaseModel):
     _connection: "SyncThingConnection"
     device_id: str = Field(alias="deviceID")
-    name: str = Field(default='')
+    name: str
 
-    addresses: list[str] = Field(default_factory=lambda: ['dynamic'])
-    compression: Literal['never', 'metadata', 'always', 'false', 'true'] = 'metadata'
+    addresses: list[str]
+    compression: Literal['never', 'metadata', 'always', 'false', 'true']
     # 'false' and 'true' are legacy values for never and metadata respectively.
 
-    cert_name: str = Field(alias="certName", default='')
-    introducer: bool = False
-    skip_introduction_removals: bool = Field(default=False, alias="skipIntroductionRemovals")
-    introduced_by: str = Field(alias="introducedBy", default='')
-    paused: bool = False
-    allowed_networks: list[str] = Field(alias="allowedNetworks", default_factory=list)
-    auto_accept_folders: bool = Field(alias="autoAcceptFolders", default=False)
-    max_send_kbps: int = Field(alias="maxSendKbps", default=0)
-    max_recv_kbps: int = Field(alias="maxRecvKbps", default=0)
-    ignored_folders: list[str] = Field(alias="ignoredFolders", default_factory=list)
-    max_request_kib: int = Field(alias="maxRequestKiB", default=0)
-    untrusted: bool = False
-    remote_gui_port: int = Field(alias="remoteGUIPort", default=0)
-    num_connections: int = Field(alias="numConnections", default=0)
+    cert_name: str = Field(alias="certName")
+    introducer: bool
+    skip_introduction_removals: bool = Field(alias="skipIntroductionRemovals")
+    introduced_by: str = Field(alias="introducedBy")
+    paused: bool
+    allowed_networks: list[str] = Field(alias="allowedNetworks")
+    auto_accept_folders: bool = Field(alias="autoAcceptFolders")
+    max_send_kbps: int = Field(alias="maxSendKbps")
+    max_recv_kbps: int = Field(alias="maxRecvKbps")
+    ignored_folders: list[str] = Field(alias="ignoredFolders")
+    max_request_kib: int = Field(alias="maxRequestKiB")
+    untrusted: bool
+    remote_gui_port: int = Field(alias="remoteGUIPort")
+    num_connections: int = Field(alias="numConnections")
 
 class DeviceFolderShare(BaseModel):
     _connection: "SyncThingConnection"
     device_id: str = Field(alias="deviceID")
-    introduced_by: str = Field(alias="introducedBy", default='')
-    encryption_password: str = Field(alias="encryptionPassword", default='')
+    introduced_by: str = Field(alias="introducedBy")
+    encryption_password: str = Field(alias="encryptionPassword")
 
 class MinDiskFree(BaseModel):
     value: float
@@ -50,61 +50,61 @@ class MinDiskFree(BaseModel):
         return v.lower()
 
 class Versioning(BaseModel):
-    type: str = ''
-    params: dict = Field(default_factory=dict)
-    cleanup_interval_s: int = Field(alias="cleanupIntervalS", default=3600)
-    fs_path: str = Field(alias="fsPath", default='')
-    fs_type: Literal['basic', 'fake'] = Field(alias="fsType", default='basic')
+    type: str
+    params: dict
+    cleanup_interval_s: int = Field(alias="cleanupIntervalS")
+    fs_path: str = Field(alias="fsPath")
+    fs_type: Literal['basic', 'fake'] = Field(alias="fsType")
 
 class XattrFilterEntry(BaseModel):
     xattr_match: str = Field(alias="match")
-    permit: bool = Field(default=True)
+    permit: bool
 
 class XattrFilter(BaseModel):
-    entries: list[XattrFilterEntry] = Field(default_factory=list)
-    max_single_entry_size: int = Field(alias="maxSingleEntrySize", default=0)
-    max_total_size: int = Field(alias="maxTotalSize", default=4096)
+    entries: list[XattrFilterEntry]
+    max_single_entry_size: int = Field(alias="maxSingleEntrySize")
+    max_total_size: int = Field(alias="maxTotalSize")
 
 class SharedFolder(BaseModel):
     _connection: "SyncThingConnection"
     id: str
-    label: str = ''
-    filesystem_type: Literal['basic', 'fake'] = Field(alias="filesystemType", default='basic')
+    label: str
+    filesystem_type: Literal['basic', 'fake'] = Field(alias="filesystemType")
     path: Path
-    share_type: Literal['sendreceive', 'sendonly', 'receiveonly', 'receiveencrypted', 'unknown'] = Field(alias="type", default='sendreceive')
+    share_type: Literal['sendreceive', 'sendonly', 'receiveonly', 'receiveencrypted', 'unknown'] = Field(alias="type")
     devices: list[DeviceFolderShare]
-    rescan_interval_s: int = Field(alias="rescanIntervalS", default=3600)
-    fs_watcher_enabled: bool = Field(alias="fsWatcherEnabled", default=True)
-    fs_watcher_delay_s: int = Field(alias="fsWatcherDelayS", default=10)
-    fs_watcher_timeout_s: int = Field(alias="fsWatcherTimeoutS", default=0)
-    ignore_perms: bool = Field(alias="ignorePerms", default=False)
-    auto_normalize: bool = Field(alias="autoNormalize", default=True)
-    min_disk_free: MinDiskFree = Field(alias="minDiskFree", default=MinDiskFree(value=1, unit='%'))
-    versioning: Versioning = Field(alias="versioning", default=Versioning())
-    copiers: int = Field(default=0)
-    puller_max_pending_kib: int = Field(alias="pullerMaxPendingKiB", default=0)
-    hashers: int = Field(default=0)
-    order: Literal['random', 'alphabetic', 'smallestFirst', 'largestFirst', 'oldestFirst', 'newestFirst', 'unknown'] = Field(default='random')
-    ignore_delete: bool = Field(alias="ignoreDelete", default=False)
-    scan_progress_interval_s: int = Field(alias="scanProgressIntervalS", default=0)
-    puller_pause_s: int = Field(alias="pullerPauseS", default=0)
-    puller_delay_s: int = Field(alias="pullerDelayS", default=1)
-    max_conflicts: int = Field(alias="maxConflicts", default=10)
-    disable_sparse_files: bool = Field(alias="disableSparseFiles", default=False)
-    paused: bool = False
-    marker_name: str = Field(alias="markerName", default='.stfolder')
-    copy_ownership_from_parent: bool = Field(alias="copyOwnershipFromParent", default=False)
-    mod_time_window_s: int = Field(alias="modTimeWindowS", default=0)
-    max_concurrent_writes: int = Field(alias="maxConcurrentWrites", default=0)
-    disable_fsync: bool = Field(alias="disableFsync", default=False)
-    block_pull_order: Literal['standard', 'random', 'inOrder', 'unknown'] = Field(alias="blockPullOrder", default='random')
-    copy_range_method: Literal['standard', 'ioctl', 'copy_file_range', 'sendfile', 'duplicate_extents', 'all', 'unknown'] = Field(alias="copyRangeMethod", default='standard')
-    case_sensitive_fs: bool = Field(alias="caseSensitiveFS", default=False)
-    junctions_as_dirs: bool = Field(alias="junctionsAsDirs", default=False)
-    sync_ownership: bool = Field(alias="syncOwnership", default=False)
-    send_ownership: bool = Field(alias="sendOwnership", default=False)
-    sync_xattrs: bool = Field(alias="syncXattrs", default=False)
-    send_xattrs: bool = Field(alias="sendXattrs", default=False)
+    rescan_interval_s: int = Field(alias="rescanIntervalS")
+    fs_watcher_enabled: bool = Field(alias="fsWatcherEnabled")
+    fs_watcher_delay_s: int = Field(alias="fsWatcherDelayS")
+    fs_watcher_timeout_s: int = Field(alias="fsWatcherTimeoutS")
+    ignore_perms: bool = Field(alias="ignorePerms")
+    auto_normalize: bool = Field(alias="autoNormalize")
+    min_disk_free: MinDiskFree = Field(alias="minDiskFree")
+    versioning: Versioning = Field(alias="versioning")
+    copiers: int
+    puller_max_pending_kib: int = Field(alias="pullerMaxPendingKiB")
+    hashers: int
+    order: Literal['random', 'alphabetic', 'smallestFirst', 'largestFirst', 'oldestFirst', 'newestFirst', 'unknown']
+    ignore_delete: bool = Field(alias="ignoreDelete")
+    scan_progress_interval_s: int = Field(alias="scanProgressIntervalS")
+    puller_pause_s: int = Field(alias="pullerPauseS")
+    puller_delay_s: int = Field(alias="pullerDelayS")
+    max_conflicts: int = Field(alias="maxConflicts")
+    disable_sparse_files: bool = Field(alias="disableSparseFiles")
+    paused: bool
+    marker_name: str = Field(alias="markerName")
+    copy_ownership_from_parent: bool = Field(alias="copyOwnershipFromParent")
+    mod_time_window_s: int = Field(alias="modTimeWindowS")
+    max_concurrent_writes: int = Field(alias="maxConcurrentWrites")
+    disable_fsync: bool = Field(alias="disableFsync")
+    block_pull_order: Literal['standard', 'random', 'inOrder', 'unknown'] = Field(alias="blockPullOrder")
+    copy_range_method: Literal['standard', 'ioctl', 'copy_file_range', 'sendfile', 'duplicate_extents', 'all', 'unknown'] = Field(alias="copyRangeMethod")
+    case_sensitive_fs: bool = Field(alias="caseSensitiveFS")
+    junctions_as_dirs: bool = Field(alias="junctionsAsDirs")
+    sync_ownership: bool = Field(alias="syncOwnership")
+    send_ownership: bool = Field(alias="sendOwnership")
+    sync_xattrs: bool = Field(alias="syncXattrs")
+    send_xattrs: bool = Field(alias="sendXattrs")
     xattr_filter: XattrFilter = Field(alias="xattrFilter")
 
 @dataclass
@@ -153,9 +153,11 @@ class SyncThingConnection:
         return results
 
     async def add_device(self, device_id: str | Device):
-        """Adds a device to this Syncthing instance. The device can be specified either by its device ID or by a Device object representing it.
+        """Adds or replaces a device in this Syncthing instance. The device can be specified either by its device ID or by a Device object representing it.
 
-        Two syncthing devices are **introduced** if their IDs appear in each others' device list.
+        Two syncthing devices are **introduced** if their IDs appear in each others' device list. There's no concept of "inviting" or "accepting a pending introduction" beyond just ensuring that both devices appear in both lists.
+
+        Note: If you need to set fields in the newly created device, use :py:meth:`default_device` to get a default Device object to use as a template when adding new devices.
         """
         if isinstance(device_id, Device):
             params = device_id.model_dump(by_alias=True, exclude={"_connection"})
@@ -183,6 +185,9 @@ class SyncThingConnection:
         "Returns the :py:class:`Device` object representing myself."
         return await self.get_device(self.my_device_id or "")
 
+
+    ## Folders
+
     async def folders(self) -> dict[str, SharedFolder]:
         "Returns a dict mapping folder IDs to :py:class:`SharedFolder` objects for all folders known to this Syncthing instance."
         folders_json = await self._fetch("/rest/config/folders")
@@ -193,6 +198,15 @@ class SyncThingConnection:
             results[f.id] = f
         return results
 
+    async def default_folder(self) -> SharedFolder:
+        "Fetches the default folder configuration from the Syncthing instance."
+        folder_json = await self._fetch("/rest/config/defaults/folder")
+        return SharedFolder.model_validate(folder_json)
+
+    async def default_device(self) -> Device:
+        "Fetches the default device configuration from the Syncthing instance."
+        device_json = await self._fetch("/rest/config/defaults/device")
+        return Device.model_validate(device_json)
 
 
 @dataclass
@@ -239,7 +253,6 @@ class SSHSyncThingConnection(SyncThingConnection):
 @dataclass
 class LocalSyncThingConnection(SyncThingConnection):
     _is_connected: bool = field(init=False, default=False)
-
 
     async def connect(self):
         try:
