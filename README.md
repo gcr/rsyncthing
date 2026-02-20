@@ -33,3 +33,6 @@ This command will:
 4. Remotely accept the invitation on each device
 5. Show progress while the folder sync completes
 6. Exit
+
+# notes
+- Need to ensure that the source device isn't marked as 'automatically accept' for any of the target devices
