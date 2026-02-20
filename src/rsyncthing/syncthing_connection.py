@@ -4,11 +4,14 @@
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
+import random
+import string
 from typing import Literal, Annotated
 import asyncssh
 import httpx
 from pydantic import BaseModel, Field, field_validator
 import anyio
+
 
 class Device(BaseModel):
     _connection: "SyncThingConnection"
@@ -37,8 +40,8 @@ class Device(BaseModel):
 class DeviceFolderShare(BaseModel):
     _connection: "SyncThingConnection"
     device_id: str = Field(alias="deviceID")
-    introduced_by: str = Field(alias="introducedBy")
-    encryption_password: str = Field(alias="encryptionPassword")
+    introduced_by: str = Field(alias="introducedBy", default='')
+    encryption_password: str = Field(alias="encryptionPassword", default='')
 
 class MinDiskFree(BaseModel):
     value: float
@@ -152,6 +155,11 @@ class SyncThingConnection:
             results[d.device_id] = d
         return results
 
+    async def default_device(self) -> Device:
+        "Fetches the default device configuration from the Syncthing instance."
+        device_json = await self._fetch("/rest/config/defaults/device")
+        return Device.model_validate(device_json)
+
     async def add_device(self, device_id: str | Device):
         """Adds or replaces a device in this Syncthing instance. The device can be specified either by its device ID or by a Device object representing it.
 
@@ -185,7 +193,6 @@ class SyncThingConnection:
         "Returns the :py:class:`Device` object representing myself."
         return await self.get_device(self.my_device_id or "")
 
-
     ## Folders
 
     async def folders(self) -> dict[str, SharedFolder]:
@@ -198,15 +205,30 @@ class SyncThingConnection:
             results[f.id] = f
         return results
 
-    async def default_folder(self) -> SharedFolder:
+    async def default_folder(
+        self,
+        *,
+        with_path: str | Path | None = None,
+        with_id: bool | str = False,
+        with_label: str | None = None,
+    ) -> SharedFolder:
         "Fetches the default folder configuration from the Syncthing instance."
         folder_json = await self._fetch("/rest/config/defaults/folder")
-        return SharedFolder.model_validate(folder_json)
+        folder = SharedFolder.model_validate(folder_json)
+        if isinstance(with_id, str):
+            folder.id = with_id
+        elif with_id is True:
+            folder.id = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+        if with_path is not None:
+            folder.path = Path(with_path)
+        if with_label is not None:
+            folder.label = with_label
+        return folder
 
-    async def default_device(self) -> Device:
-        "Fetches the default device configuration from the Syncthing instance."
-        device_json = await self._fetch("/rest/config/defaults/device")
-        return Device.model_validate(device_json)
+    async def add_folder(self, folder: SharedFolder):
+        params = folder.model_dump_json(by_alias=True, exclude={"_connection"})
+        params = json.loads(params)
+        await self._fetch("/rest/config/folders", method="POST", json=params)
 
 
 @dataclass
