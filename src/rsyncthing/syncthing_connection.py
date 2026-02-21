@@ -233,7 +233,8 @@ class SyncThingConnection:
 
 @dataclass
 class SSHSyncThingConnection(SyncThingConnection):
-    connection_string: str
+    host: str
+    username: str | None = None
 
     _ssh_client: asyncssh.SSHClientConnection|None = field(init=False, default=None)
     _ssh_http_port_listener: asyncssh.SSHListener|None = field(init=False, default=None)
@@ -244,7 +245,8 @@ class SSHSyncThingConnection(SyncThingConnection):
             if self._is_connected:
                 raise RuntimeError("Already connected")
             self._ssh_client = await asyncssh.connect(
-                self.connection_string,
+                host=self.host,
+                username=self.username or (),
             )
             config_response = await self._ssh_client.run(f"{self.syncthing_binary_path} cli config dump-json", check=True)
             config_json = json.loads(config_response.stdout) # type: ignore
@@ -269,7 +271,7 @@ class SSHSyncThingConnection(SyncThingConnection):
 
 
         except Exception as e:
-            msg = f"{self.connection_string}: Couldn't connect: {e!s}"
+            msg = f"{self.host}: Couldn't connect: {e!s}"
             raise RuntimeError(msg) from e
 
 @dataclass
