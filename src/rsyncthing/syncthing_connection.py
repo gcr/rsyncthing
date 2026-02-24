@@ -189,9 +189,12 @@ class SyncThingConnection:
                 return device
         return None
 
-    async def me(self) -> Device | None:
+    async def me(self) -> Device:
         "Returns the :py:class:`Device` object representing myself."
-        return await self.get_device(self.my_device_id or "")
+        dev = await self.get_device(self.my_device_id or "")
+        if dev is None:
+            raise RuntimeError("Couldn't find device representing myself")
+        return dev
 
     ## Folders
 
