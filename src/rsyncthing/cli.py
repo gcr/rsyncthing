@@ -102,8 +102,7 @@ async def ls(src: str = "", common: CommonArgs = CommonArgs()):
         for f in folders.values():
             t = tree.add(f"[green bold]{f.label}[/] [dim]{f.path}[/dim]")
             for d in f.devices:
-                t.add(f"{devices[d.device_id].name}",
-                      style=rich.StyleType.leaf)
+                t.add(f"{devices[d.device_id].name}")
         common.console.print(tree)
 
 @app.command(alias="share")
